@@ -6,7 +6,6 @@
 #include "ugens.h"
 #include "utils.h"
 
-
 static AudioContext* audioContext;
 static Phasor* env;
 static VCO* vco;

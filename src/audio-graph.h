@@ -19,7 +19,7 @@ typedef struct UGen {
 
 UGen UGen_create(struct AudioContext* audioContext);
 void UGen_destroy(struct UGen* self);
-void UGen_calc(UGen* self);
+void UGen_calc(struct UGen* self);
 
 ///////////////////////////////////////////////////////////
 // OutletListNode /////////////////////////////////////////
@@ -54,7 +54,6 @@ typedef struct Outlet {
 
 Outlet* Outlet_create(struct UGen* ugen);
 void Outlet_destroy(struct Outlet* self);
-void Outlet_connect(struct Outlet* self, struct Inlet* inlet);
 double Outlet_calc(struct Outlet* self);
 
 ///////////////////////////////////////////////////////////
@@ -82,4 +81,4 @@ typedef struct AudioContext {
 
 AudioContext* AudioContext_create(unsigned int samplerate, unsigned int numChannels);
 void AudioContext_destroy(struct AudioContext* self);
-double* AudioContext_calc(AudioContext* self);
+double* AudioContext_calc(struct AudioContext* self);

@@ -112,7 +112,6 @@ void Outlet_destroy(struct Outlet* self)
   free(self);
 }
 
-
 double Outlet_calc(Outlet* self)
 {
   UGen_calc(self->ugen);
@@ -140,7 +139,7 @@ void Inlet_destroy(Inlet* self)
 
 double Inlet_calc(struct Inlet* self)
 {
-  double value = 0;
+  double value = 0.0;
   OutletListNode* node = self->connectedOutlets->head;
   while (node) {
     value += Outlet_calc(node->outlet);
@@ -181,6 +180,7 @@ void AudioContext_destroy(AudioContext* self)
 
   free(self->inlets);
   free(self->sampleData);
+  free(self);
 }
 
 double* AudioContext_calc(AudioContext* self)
