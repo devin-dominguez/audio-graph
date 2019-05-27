@@ -46,7 +46,7 @@ SVF* SVF_create(AudioContext* audioContext)
 {
   SVF* self = (SVF*) malloc(sizeof(SVF));
   self->ugen = UGen_create(audioContext);
-  self->ugen.dsp = &SVF_dsp;
+  self->ugen.dsp = SVF_dsp;
 
   self->input = Inlet_create();
   self->frequency = Inlet_create();

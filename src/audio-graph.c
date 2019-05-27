@@ -154,21 +154,22 @@ double Inlet_calc(struct Inlet* self)
 ///////////////////////////////////////////////////////////
 AudioContext* AudioContext_create(unsigned int samplerate, unsigned int numChannels)
 {
-  AudioContext* audioContext = (AudioContext*) malloc(sizeof(AudioContext));
-  audioContext->samplerate = samplerate;
-  audioContext->numChannels = numChannels;
-  audioContext->sampleNumber = 0;
+  AudioContext* self = (AudioContext*) malloc(sizeof(AudioContext));
+  self->samplerate = samplerate;
+  self->numChannels = numChannels;
+  self->sampleNumber = 0;
 
-  audioContext->inlets = (Inlet**) malloc(numChannels * sizeof(Inlet*));
-  audioContext->sampleData = (double*) malloc(numChannels * sizeof(double));
+  self->inlets = (Inlet**) malloc(numChannels * sizeof(Inlet*));
+  self->timer = Inlet_create();
+  self->sampleData = (double*) malloc(numChannels * sizeof(double));
 
   unsigned int i;
   for (i = 0; i < numChannels; i++) {
-    audioContext->inlets[i] = Inlet_create();
-    audioContext->sampleData[i] = 0.0;
+    self->inlets[i] = Inlet_create();
+    self->sampleData[i] = 0.0;
   }
 
-  return audioContext;
+  return self;
 }
 
 void AudioContext_destroy(AudioContext* self)
@@ -179,6 +180,7 @@ void AudioContext_destroy(AudioContext* self)
   }
 
   free(self->inlets);
+  Inlet_destroy(self->timer);
   free(self->sampleData);
   free(self);
 }
@@ -186,6 +188,8 @@ void AudioContext_destroy(AudioContext* self)
 double* AudioContext_calc(AudioContext* self)
 {
   self->sampleNumber++;
+  // causes all connected timers to calc
+  Inlet_calc(self->timer);
   unsigned int i;
   for (i = 0; i < self->numChannels; i++) {
     self->sampleData[i] = Inlet_calc(self->inlets[i]);

@@ -11,10 +11,11 @@ void connect(struct Outlet* outlet, struct Inlet* inlet);
 ///////////////////////////////////////////////////////////
 // UGen ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
+typedef void (*UGenDspCallback)(struct UGen* ugen);
 typedef struct UGen {
   struct AudioContext* audioContext;
   unsigned long sampleNumber;
-  void (*dsp)(struct UGen*);
+  UGenDspCallback dsp;
 } UGen;
 
 UGen UGen_create(struct AudioContext* audioContext);
@@ -76,6 +77,7 @@ typedef struct AudioContext {
   unsigned long sampleNumber;
   unsigned int numChannels;
   struct Inlet** inlets;
+  Inlet* timer;
   double* sampleData;
 } AudioContext;
 

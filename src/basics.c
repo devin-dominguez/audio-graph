@@ -23,7 +23,7 @@ Phasor* Phasor_create(AudioContext* audioContext)
 {
   Phasor* self = (Phasor*) malloc(sizeof(Phasor));
   self->ugen = UGen_create(audioContext);
-  self->ugen.dsp = &Phasor_dsp;
+  self->ugen.dsp = Phasor_dsp;
 
   self->_phase = 0.0;
 
@@ -59,7 +59,7 @@ VCA* VCA_create(AudioContext* audioContext)
 {
   VCA* self = (VCA*) malloc(sizeof(VCA));
   self->ugen = UGen_create(audioContext);
-  self->ugen.dsp = &VCA_dsp;
+  self->ugen.dsp = VCA_dsp;
 
   self->input = Inlet_create();
   self->gain = Inlet_create();

@@ -50,7 +50,7 @@ VCO* VCO_create(AudioContext* audioContext)
 {
   VCO* self = (VCO*) malloc(sizeof(VCO));
   self->ugen = UGen_create(audioContext);
-  self->ugen.dsp = &VCO_dsp;
+  self->ugen.dsp = VCO_dsp;
 
   self->phasor = Phasor_create(audioContext);
 
