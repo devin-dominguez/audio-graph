@@ -5,6 +5,8 @@ static void Metro_dsp(UGen* ugen)
 {
   Metro* self = (Metro*) ugen;
   double interval = Inlet_calc(self->interval);
+  // TODO figure out the rammifications of this cast
+  // See how pd does it
   unsigned int active = Inlet_calc(self->active);
   unsigned int reset = Inlet_calc(self->reset);
 

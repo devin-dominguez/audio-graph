@@ -23,27 +23,17 @@ void UGen_destroy(struct UGen* self);
 void UGen_calc(struct UGen* self);
 
 ///////////////////////////////////////////////////////////
-// OutletListNode /////////////////////////////////////////
+// Connection /////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
-typedef struct OutletListNode {
+typedef struct Connection {
   struct Outlet* outlet;
-  struct OutletListNode* next;
-} OutletListNode;
+  struct Connection* next;
+} Connection;
 
-OutletListNode* OuletListNode_create(struct Outlet* outlet);
-void OutletListNode_destroy(struct OutletListNode* self);
-
-///////////////////////////////////////////////////////////
-// OutletList /////////////////////////////////////////////
-///////////////////////////////////////////////////////////
-typedef struct OutletList {
-  struct OutletListNode* head;
-} OutletList;
-
-OutletList* OutletList_create();
-void OutletList_destroy(struct OutletList* self);
-OutletListNode* OutletList_getTail(struct OutletList* self);
-void OutletList_append(struct OutletList* self, struct Outlet* outlet);
+Connection* Connection_create(struct Outlet* outlet);
+void Connection_destroy(struct Connection* self);
+void Connection_append(struct Outlet* outlet, struct Inlet* inlet);
+Connection* Connection_getTail(struct Connection* self);
 
 ///////////////////////////////////////////////////////////
 // Outlet /////////////////////////////////////////////////
@@ -61,8 +51,9 @@ double Outlet_calc(struct Outlet* self);
 // Inlet //////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
 typedef struct Inlet {
-  struct OutletList* connectedOutlets;
+  struct Connection* connectedOutlets;
   double value;
+  double gain;
 } Inlet;
 
 void Inlet_destroy(struct Inlet* self);

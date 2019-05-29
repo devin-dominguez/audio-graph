@@ -3,7 +3,7 @@
 
 void connect(Outlet* outlet, Inlet* inlet)
 {
-  OutletList_append(inlet->connectedOutlets, outlet);
+  Connection_append(outlet, inlet);
 }
 ///////////////////////////////////////////////////////////
 // UGen ///////////////////////////////////////////////////
@@ -30,69 +30,44 @@ void UGen_calc(UGen* self)
     self->sampleNumber = self->audioContext->sampleNumber;
   }
 }
-
 ///////////////////////////////////////////////////////////
-// OutletListNode /////////////////////////////////////////
+// Connection /////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
-OutletListNode* OuletListNode_create(Outlet* outlet)
+Connection* Connection_create(struct Outlet* outlet)
 {
-  OutletListNode* outletListNode = (OutletListNode*) malloc(sizeof(OutletListNode));
-  outletListNode->outlet = outlet;
-  outletListNode->next = NULL;
+  Connection* self = (Connection*) malloc(sizeof(Connection));
+  self->outlet = outlet;
+  self->next = NULL;
 
-  return outletListNode;
+  return self;
 }
 
-void OutletListNode_destroy(struct OutletListNode* self)
+void Connection_destroy(struct Connection* self)
 {
   free(self);
 }
 
-///////////////////////////////////////////////////////////
-// OutletList /////////////////////////////////////////////
-///////////////////////////////////////////////////////////
-OutletList* OutletList_create()
+void Connection_append(struct Outlet* outlet, struct Inlet* inlet)
 {
-  OutletList* outletList = (OutletList*) malloc(sizeof(OutletList));
-  outletList->head = NULL;
-
-  return outletList;
-}
-
-void OutletList_destroy(struct OutletList* self)
-{
-  OutletListNode* currentNode = self->head;
-
-  while(currentNode) {
-    OutletListNode* temp = currentNode;
-    currentNode = currentNode->next;
-    free(temp);
-  }
-
-  free(self);
-}
-
-OutletListNode* OutletList_getTail(OutletList* self)
-{
-  OutletListNode* currentNode = self->head;
-  OutletListNode* previousNode = NULL;
-
-  while(currentNode) {
-    previousNode = currentNode;
-    currentNode = currentNode->next;
-  }
-
-  return previousNode;
-}
-
-void OutletList_append(OutletList* self, Outlet* outlet)
-{
-  OutletListNode* node = OuletListNode_create(outlet);
-  if (!self->head) {
-    self->head = node;
+  Connection* connection = Connection_create(outlet);
+  if (!inlet->connectedOutlets) {
+    inlet->connectedOutlets = connection;
   } else {
-    OutletList_getTail(self)->next = node;
+    Connection_getTail(inlet->connectedOutlets)->next = connection;
   }
+}
+
+Connection* Connection_getTail(struct Connection* self)
+{
+  Connection* currentConnection = self;
+  Connection* previousConnection = NULL;
+
+  while(currentConnection) {
+    previousConnection = currentConnection;
+    currentConnection = currentConnection->next;
+  }
+
+  return previousConnection;
 }
 
 ///////////////////////////////////////////////////////////
@@ -125,28 +100,36 @@ double Outlet_calc(Outlet* self)
 Inlet* Inlet_create()
 {
   Inlet* inlet = (Inlet*) malloc(sizeof(Inlet));
-  inlet->connectedOutlets = OutletList_create();
+  inlet->connectedOutlets = NULL;
   inlet->value = 0.0;
+  inlet->gain = 1.0;
 
   return inlet;
 }
 
 void Inlet_destroy(Inlet* self)
 {
-  OutletList_destroy(self->connectedOutlets);
+  Connection* connection = self->connectedOutlets;
+
+  while(connection) {
+    Connection* temp = connection;
+    connection = connection->next;
+    Connection_destroy(temp);
+  }
+
   free(self);
 }
 
 double Inlet_calc(struct Inlet* self)
 {
   double value = 0.0;
-  OutletListNode* node = self->connectedOutlets->head;
-  while (node) {
-    value += Outlet_calc(node->outlet);
-    node = node->next;
+  Connection* connection = self->connectedOutlets;
+  while (connection) {
+    value += Outlet_calc(connection->outlet);
+    connection = connection->next;
   }
 
-  return value + self->value;
+  return self->gain * value + self->value;
 }
 
 ///////////////////////////////////////////////////////////
